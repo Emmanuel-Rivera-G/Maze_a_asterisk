@@ -2,59 +2,75 @@ import heapq
 import math
 
 
-def euclidean(vec1, vec2):
-    return math.sqrt((vec1[0] - vec2[0]) ** 2 + (vec1[1] - vec2[1]) ** 2)
+def euclidean(a, b) -> float:
+    return math.hypot(a[0] - b[0], a[1] - b[1])
+
+
+def _min_puntaje_node(cola):
+    mejor_indice = 0
+    mejor_puntaje = cola[0][0]
+    for i in range(1, len(cola)):
+        if cola[i][0] < mejor_puntaje:
+            mejor_puntaje = cola[i][0]
+            mejor_indice = i
+    return cola.pop(mejor_indice)
 
 
 class AStarPathFinder:
-    directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+    _DIRS = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 
     def __init__(
-        self,
-        grid,
-        start=(0,0),
-        end=None,
+            self,
+            grid,
+            start = (0, 0),
+            end = None
     ):
         self.grid = grid
         self.rows = len(grid)
         self.cols = len(grid[0]) if self.rows > 0 else 0
         self.start = start
-        self.end = end if end is not None else (self.rows - 1, self.cols - 1)
+        self.end = end or (self.rows - 1, self.cols - 1)
 
-    def neighbors(self, cur_vec):
-        for dx, dy in self.directions:
-            dir_vec = (cur_vec[0] + dx, cur_vec[1] + dy)
-            x_into_0_and_n = 0 <= dir_vec[0] < self.n
-            y_into_0_and_n = 0 <= dir_vec[1] < self.n
-            is_into_maze = x_into_0_and_n and y_into_0_and_n
-            is_not_obstacle = self.grid[dir_vec[0]][dir_vec[1]] == 0 if is_into_maze else False
-            is_end = dir_vec == self.end
-            if is_into_maze and (is_not_obstacle or is_end):
-                yield dir_vec
+    def _neighbors(self, node):
+        x, y = node
+        for dx, dy in self._DIRS:
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < self.rows and 0 <= ny < self.cols:
+                if (self.grid[nx][ny] == 0) or ((nx, ny) == self.end):
+                    yield nx, ny
 
     def find_path(self):
-        open_set = [(0, self.start)]
-        came_from = {}
-        g_score = {self.start: 0}
-        f_score = {self.start: euclidean(self.start, self.end)}
-        while open_set:
-            _, current = heapq.heappop(open_set)
+        cola_abierta = [(0.0, self.start)]
 
-            if current == self.end:
-                path = [current]
-                while current in came_from:
-                    current = came_from[current]
-                    path.append(current)
+        padre: dict = {}
+        costo_g: dict = {self.start: 0.0}
+        costo_f: dict = {self.start: euclidean(self.start, self.end)}
 
-                inverse_path = path[::-1]
-                return inverse_path
+        while cola_abierta:
+            f_actual, actual = _min_puntaje_node(cola_abierta)
 
-            for neighbor in self.neighbors(current):
-                tentative = g_score[current] + 1
-                if tentative < g_score.get(neighbor, float('inf')):
-                    came_from[neighbor] = current
-                    g_score[neighbor] = tentative
-                    f_score[neighbor] = tentative + euclidean(neighbor, self.end)
-                    heapq.heappush(open_set, (f_score[neighbor], neighbor))
+            if actual == self.end:
+                camino = [actual]
+                while actual in padre:
+                    actual = padre[actual]
+                    camino.append(actual)
+                return list(reversed(camino))
+
+            for vecino in self._neighbors(actual):
+                costo_temporal = costo_g[actual] + 1.0
+                if costo_temporal < costo_g.get(vecino, math.inf):
+                    padre[vecino] = actual
+                    costo_g[vecino] = costo_temporal
+                    costo_f[vecino] = costo_temporal + euclidean(vecino, self.end)
+
+                    # Actualizar o agregar el vecino en la cola
+                    encontrado = False
+                    for i in range(len(cola_abierta)):
+                        if cola_abierta[i][1] == vecino:
+                            cola_abierta[i] = (costo_f[vecino], vecino)
+                            encontrado = True
+                            break
+                    if not encontrado:
+                        cola_abierta.append((costo_f[vecino], vecino))
 
         return None
