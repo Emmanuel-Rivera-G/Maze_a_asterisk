@@ -2,7 +2,6 @@ from src.maze_a_asterisk.game_logic.maze_game import MazeGame
 from src.maze_a_asterisk.game_logic.generator import generate_matrix
 from src.maze_a_asterisk.algorithm.a_star_path_finder import AStarPathFinder
 
-
 # Parameters
 GRID_COLS, GRID_ROWS = 5, 5
 CELL_SIZE = 50
@@ -17,8 +16,9 @@ COLOR_START = (0, 255, 0)
 COLOR_END = (0, 0, 255)
 COLOR_PATH = (255, 0, 0)
 
-START = (0,0)
+START = (0, 0)
 END = (GRID_ROWS - 1, GRID_COLS - 1)
+
 
 def main():
     maze_game = MazeGame(

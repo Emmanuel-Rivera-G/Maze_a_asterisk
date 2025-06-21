@@ -11,7 +11,6 @@ def generate_matrix(
     if end_position is None:
         end_position = (rows - 1, cols - 1)
 
-    # Create empty grid
     grid = [[0 for _ in range(cols)] for _ in range(rows)]
 
     all_positions = [

@@ -84,7 +84,7 @@ class MazeGame:
     def surface_to_raw(self) -> bytes:
         if self.surface is None:
             raise RuntimeError("Surface has not been drawn yet.")
-        return pygame.image.tostring(self.surface, 'RGB')
+        return surface_to_raw(self.surface)
 
     def raw_to_image(self, raw: bytes) -> np.ndarray:
         return np.frombuffer(raw, dtype=np.uint8)\
