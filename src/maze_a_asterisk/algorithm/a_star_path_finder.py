@@ -21,8 +21,8 @@ class AStarPathFinder:
     def __init__(
             self,
             grid,
-            start = (0, 0),
-            end = None
+            start=(0, 0),
+            end=None
     ):
         self.grid = grid
         self.rows = len(grid)

@@ -1,29 +1,28 @@
 import pygame
-import numpy as np
-import matplotlib.pyplot as plt
+from numpy import ndarray
+
+from src.maze_a_asterisk.game_logic.game import Game
 
 
-class MazeGame:
+class MazeGame(Game):
     def __init__(
-        self,
-        cols: int,
-        rows: int,
-        cell_size: int = 20,
-        margin: int = 2,
-        background_color = (0, 0, 0)
+            self,
+            cols: int,
+            rows: int,
+            cell_size: int = 20,
+            margin: int = 2,
+            background_color=(0, 0, 0),
+            width_map: int = 0,
+            height_map: int = 0
     ):
+        super().__init__(cell_size, margin, background_color, width_map, height_map)
         # Maze grid dimensions (cells)
         self.cols = cols
         self.rows = rows
 
-        # Drawing parameters
-        self.cell_size = cell_size
-        self.margin = margin
-        self.background_color = background_color
-
         # Compute surface size in pixels
-        self.width_map = cols * (cell_size + margin) + margin
-        self.height_map = rows * (cell_size + margin) + margin
+        self.width_map = width_map if width_map > 0 else cols * (cell_size + margin) + margin
+        self.height_map = height_map if height_map > 0 else rows * (cell_size + margin) + margin
 
         # Maze state
         self.obstacle_num = None
@@ -81,28 +80,11 @@ class MazeGame:
         self.surface = surf
         return surf
 
-    def surface_to_raw(self) -> bytes:
-        if self.surface is None:
-            raise RuntimeError("Surface has not been drawn yet.")
-        return surface_to_raw(self.surface)
-
-    def raw_to_image(self, raw: bytes) -> np.ndarray:
-        return np.frombuffer(raw, dtype=np.uint8)\
-            .reshape((self.height_map, self.width_map, 3))
-
-    def show_matplotlib(self, img: np.ndarray) -> None:
-        dpi = 100
-        figsize = (self.width_map / dpi, self.height_map / dpi)
-        plt.figure(figsize=figsize, dpi=dpi)
-        plt.axis('off')
-        plt.imshow(img)
-        plt.show()
-
     def generate_maze(
-        self,
-        generator,
-        PathfinderClass
-    ) -> np.ndarray:
+            self,
+            generator,
+            PathfinderClass
+    ) -> ndarray:
         if self.obstacle_num is None:
             raise ValueError("No hay número de obstaculos.")
         if self.start is None or self.end is None:
@@ -118,7 +100,3 @@ class MazeGame:
         self.draw()
         raw = self.surface_to_raw()
         return self.raw_to_image(raw)
-
-
-def surface_to_raw(surface: pygame.Surface) -> bytes:
-    return pygame.image.tostring(surface, 'RGB')
