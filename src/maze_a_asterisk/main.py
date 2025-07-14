@@ -41,5 +41,5 @@ def main():
     maze_game.show_matplotlib(img)
 
 
-if __name__ == 'main':
+if __name__ == '__main__':
     main()
